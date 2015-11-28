@@ -7,6 +7,15 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 include(CheckIncludeFiles)
 
+# -- Generate Messages ---------------------------------------------------------
+
+include(FindProtobuf)
+find_package(Protobuf REQUIRED)
+
+file(GLOB ProtoFiles "${CMAKE_CURRENT_SOURCE_DIR}/messages/*.proto")
+
+PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS ${ProtoFiles})
+
 # --- Add-on Dependencies ------------------------------------------------------
 
 find_package(kodi REQUIRED)
@@ -17,7 +26,9 @@ include_directories(${INCLUDES}
                     ${PROJECT_SOURCE_DIR}/src
                     ${KODI_INCLUDE_DIR}
                     ${kodiplatform_INCLUDE_DIRS}
-                    ${platform_INCLUDE_DIRS})
+                    ${platform_INCLUDE_DIRS}
+                    ${PROTOBUF_INCLUDE_DIRS}
+                    ${CMAKE_CURRENT_BINARY_DIR}) # For protobuf
 
 set(JOYSTICK_SOURCES src/addon.cpp
                      src/api/AnomalousTriggerFilter.cpp
@@ -49,7 +60,8 @@ set(JOYSTICK_SOURCES src/addon.cpp
                      src/storage/xml/ButtonMapXml.cpp
                      src/storage/xml/DatabaseXml.cpp
                      src/storage/xml/DeviceXml.cpp
-                     src/utils/StringUtils.cpp)
+                     src/utils/StringUtils.cpp
+                     ${PROTO_SRCS})
 
 check_include_files("syslog.h" HAVE_SYSLOG)
 
@@ -57,7 +69,9 @@ if(HAVE_SYSLOG)
   list(APPEND JOYSTICK_SOURCES src/log/LogSyslog.cpp)
 endif()
 
-list(APPEND DEPLIBS ${kodiplatform_LIBRARIES} ${platform_LIBRARIES})
+list(APPEND DEPLIBS ${kodiplatform_LIBRARIES}
+                    ${platform_LIBRARIES}
+                    ${PROTOBUF_LIBRARIES})
 
 # --- Cocoa --------------------------------------------------------------------
 

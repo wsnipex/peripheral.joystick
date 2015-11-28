@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+package joystick;
+
+message Device {
+  required string provider = 1;
+  optional string name = 2;
+  optional uint32 vendor_id = 3;
+  optional uint32 product_id = 4;
+  optional uint32 button_count = 5;
+  optional uint32 hat_count = 6;
+  optional uint32 axis_count = 7;
+}
+
+message ButtonMapEntry {
+  required string feature = 1;
+  required string driver_primitive = 2;
+}
+
+message ButtonMap {
+  required Device device = 1;
+  required string controller = 2;
+  repeated ButtonMapEntry features = 3;
+}
