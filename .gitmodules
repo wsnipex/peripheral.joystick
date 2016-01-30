@@ -1,0 +1,3 @@
+[submodule "peripheral.joystick/resources/buttonmaps/retroarch"]
+	path = peripheral.joystick/resources/buttonmaps/retroarch
+	url = https://github.com/libretro/retroarch-joypad-autoconfig.git
