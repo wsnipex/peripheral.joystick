@@ -76,23 +76,6 @@ if("${CORE_SYSTEM_NAME}" STREQUAL "darwin" OR "${CORE_SYSTEM_NAME}" STREQUAL "os
   list(APPEND DEPLIBS ${COCOA_LIBRARY})
 endif()
 
-# --- SDL ----------------------------------------------------------------------
-
-if(NOT "${CORE_SYSTEM_NAME}" STREQUAL "windows")
-  find_package(Sdl)
-
-  if(SDL_FOUND)
-    include_directories(${SDL_INCLUDE_DIRS})
-
-    add_definitions(-DHAVE_SDL)
-
-    list(APPEND JOYSTICK_SOURCES src/api/sdl/JoystickInterfaceSDL.cpp
-                                 src/api/sdl/JoystickSDL.cpp)
-
-    list(APPEND DEPLIBS ${SDL_LIBRARIES})
-  endif()
-endif()
-
 # --- Linux Joystick API -------------------------------------------------------
 
 check_include_files(linux/joystick.h HAVE_LINUX_JOYSTICK_H)
