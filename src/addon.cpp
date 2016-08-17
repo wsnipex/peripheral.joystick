@@ -162,6 +162,11 @@ PERIPHERAL_ERROR GetAddonCapabilities(PERIPHERAL_CAPABILITIES* pCapabilities)
   return PERIPHERAL_NO_ERROR;
 }
 
+bool SupportsDevice(const char* device_name)
+{
+  return false; // TODO
+}
+
 PERIPHERAL_ERROR PerformDeviceScan(unsigned int* peripheral_count, PERIPHERAL_INFO** scan_results)
 {
   if (!peripheral_count || !scan_results)
