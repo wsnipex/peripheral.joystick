@@ -387,7 +387,7 @@ bool CButtonMapXml::Deserialize(const TiXmlElement* pElement, FeatureVector& fea
     return false;
   }
 
-  while (pFeature)
+  for ( ; pFeature != nullptr; pFeature = pFeature->NextSiblingElement(BUTTONMAP_XML_ELEM_FEATURE))
   {
     const char* name = pFeature->Attribute(BUTTONMAP_XML_ATTR_FEATURE_NAME);
     if (!name)
@@ -396,6 +396,19 @@ bool CButtonMapXml::Deserialize(const TiXmlElement* pElement, FeatureVector& fea
       return false;
     }
     std::string strName(name);
+
+    // Check if the feature was already deserialized
+    auto it = std::find_if(features.begin(), features.end(),
+      [strName](const ADDON::JoystickFeature& feature)
+      {
+        return feature.Name() == strName;
+      });
+
+    if (it != features.end())
+    {
+      esyslog("Duplicate feature \"%s\" found, skipping", strName.c_str());
+      continue;
+    }
 
     const TiXmlElement* pUp = nullptr;
     const TiXmlElement* pDown = nullptr;
@@ -536,8 +549,6 @@ bool CButtonMapXml::Deserialize(const TiXmlElement* pElement, FeatureVector& fea
     }
 
     features.push_back(feature);
-
-    pFeature = pFeature->NextSiblingElement(BUTTONMAP_XML_ELEM_FEATURE);
   }
 
   return true;

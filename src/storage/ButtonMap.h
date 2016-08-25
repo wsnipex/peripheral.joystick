@@ -54,7 +54,7 @@ namespace JOYSTICK
     virtual bool Load(void) = 0;
     virtual bool Save(void) const = 0;
 
-    void Sanitize();
+    static void Sanitize(const std::string& controllerId, FeatureVector& features);
 
     const std::string m_strResourcePath;
     DevicePtr         m_device;

@@ -59,14 +59,32 @@ const ButtonMap& CButtonMap::GetButtonMap()
 
 bool CButtonMap::MapFeatures(const std::string& controllerId, const FeatureVector& features)
 {
-  FeatureVector& oldFeatures = m_buttonMap[controllerId];
+  FeatureVector& myFeatures = m_buttonMap[controllerId];
 
   // TODO: Optimize case when features are unchanged
   bool bChanged = true; // TODO
 
   if (bChanged)
   {
-    oldFeatures = features;
+    // Remove features with the same name
+    for (auto& newFeature : features)
+    {
+      myFeatures.erase(std::remove_if(myFeatures.begin(), myFeatures.end(),
+        [newFeature](const ADDON::JoystickFeature& feature)
+        {
+          return feature.Name() == newFeature.Name();
+        }), myFeatures.end());
+    }
+
+    myFeatures.insert(myFeatures.begin(), features.begin(), features.end());
+
+    Sanitize(controllerId, myFeatures);
+
+    std::sort(myFeatures.begin(), myFeatures.end(),
+      [](const ADDON::JoystickFeature& lhs, const ADDON::JoystickFeature& rhs)
+      {
+        return lhs.Name() < rhs.Name();
+      });
 
     if (Save())
     {
@@ -106,7 +124,8 @@ bool CButtonMap::Refresh(void)
     if (!Load())
       return false;
 
-    Sanitize();
+    for (auto it = m_buttonMap.begin(); it != m_buttonMap.end(); ++it)
+      Sanitize(it->first, it->second);
 
     m_timestamp = now;
   }
@@ -114,83 +133,87 @@ bool CButtonMap::Refresh(void)
   return true;
 }
 
-void CButtonMap::Sanitize()
+void CButtonMap::Sanitize(const std::string& controllerId, FeatureVector& features)
 {
-  for (auto it = m_buttonMap.begin(); it != m_buttonMap.end(); ++it)
+  // Loop through features
+  for (unsigned int iFeature = 0; iFeature < features.size(); ++iFeature)
   {
-    const std::string& controllerId = it->first;
-    FeatureVector& features = it->second;
+    auto& feature = features[iFeature];
 
-    // Loop through features
-    for (unsigned int iFeature = 0; iFeature < features.size(); ++iFeature)
+    // Loop through feature's primitives
+    auto& primitives = feature.Primitives();
+    for (unsigned int iPrimitive = 0; iPrimitive < primitives.size(); ++iPrimitive)
     {
-      auto& feature = features[iFeature];
+      auto& primitive = primitives[iPrimitive];
 
-      // Loop through feature's primitives
-      auto& primitives = feature.Primitives();
-      for (unsigned int iPrimitive = 0; iPrimitive < primitives.size(); ++iPrimitive)
+      if (primitive.Type() == JOYSTICK_DRIVER_PRIMITIVE_TYPE_UNKNOWN)
+        continue;
+
+      bool bFound = false;
+
+      // Search for prior feature with the primitive
+      ADDON::JoystickFeature existingFeature;
+
+      for (unsigned int iExistingFeature = 0; iExistingFeature < iFeature; ++iExistingFeature)
       {
-        auto& primitive = primitives[iPrimitive];
-
-        if (primitive.Type() == JOYSTICK_DRIVER_PRIMITIVE_TYPE_UNKNOWN)
-          continue;
-
-        bool bFound = false;
-
-        // Search for prior feature with the primitive
-        ADDON::JoystickFeature existingFeature;
-
-        for (unsigned int iExistingFeature = 0; iExistingFeature < iFeature; ++iExistingFeature)
+        const auto& existingPrimitives = features[iExistingFeature].Primitives();
+        if (std::find(existingPrimitives.begin(), existingPrimitives.end(), primitive) != existingPrimitives.end())
         {
-          const auto& existingPrimitives = features[iExistingFeature].Primitives();
-          if (std::find(existingPrimitives.begin(), existingPrimitives.end(), primitive) != existingPrimitives.end())
+          existingFeature = features[iExistingFeature];
+          bFound = true;
+          break;
+        }
+      }
+
+      if (!bFound)
+      {
+        // Search for primitive in prior primitives
+        for (unsigned int iExistingPrimitive = 0; iExistingPrimitive < iPrimitive; ++iExistingPrimitive)
+        {
+          if (primitives[iExistingPrimitive] == primitive)
           {
-            existingFeature = features[iExistingFeature];
             bFound = true;
             break;
           }
         }
+      }
 
-        if (!bFound)
-        {
-          // Search for primitive in prior primitives
-          for (unsigned int iExistingPrimitive = 0; iExistingPrimitive < iPrimitive; ++iExistingPrimitive)
-          {
-            if (primitives[iExistingPrimitive] == primitive)
-            {
-              bFound = true;
-              break;
-            }
-          }
-        }
+      // Invalid the primitive if it has already been seen
+      if (bFound)
+      {
+        esyslog("%s: %s (%s) conflicts with %s (%s)",
+            controllerId.c_str(),
+            CStorageUtils::PrimitiveToString(primitive).c_str(),
+            existingFeature.Type() != JOYSTICK_FEATURE_TYPE_UNKNOWN ? existingFeature.Name().c_str() : feature.Name().c_str(),
+            CStorageUtils::PrimitiveToString(primitive).c_str(),
+            feature.Name().c_str());
 
-        // Invalid the primitive if it has already been seen
-        if (bFound)
-        {
-          esyslog("%s: %s (%s) conflicts with %s (%s), skipping",
-              controllerId.c_str(),
-              CStorageUtils::PrimitiveToString(primitive).c_str(),
-              existingFeature.Type() != JOYSTICK_FEATURE_TYPE_UNKNOWN ? existingFeature.Name().c_str() : feature.Name().c_str(),
-              CStorageUtils::PrimitiveToString(primitive).c_str(),
-              feature.Name().c_str());
-
-          primitive = ADDON::DriverPrimitive();
-        }
+        primitive = ADDON::DriverPrimitive();
       }
     }
-
-    // Erase invalid features
-    features.erase(std::remove_if(features.begin(), features.end(),
-      [](const ADDON::JoystickFeature& feature)
-      {
-        auto& primitives = feature.Primitives();
-
-        return std::find_if(primitives.begin(), primitives.end(),
-          [](const ADDON::DriverPrimitive& primitive)
-          {
-            return primitive.Type() != JOYSTICK_DRIVER_PRIMITIVE_TYPE_UNKNOWN;
-          }) == primitives.end();
-
-      }), features.end());
   }
+
+  // Erase invalid features
+  features.erase(std::remove_if(features.begin(), features.end(),
+    [controllerId](const ADDON::JoystickFeature& feature)
+    {
+      auto& primitives = feature.Primitives();
+
+      // Find invalid primitive
+      auto it = std::find_if(primitives.begin(), primitives.end(),
+        [](const ADDON::DriverPrimitive& primitive)
+        {
+          return primitive.Type() != JOYSTICK_DRIVER_PRIMITIVE_TYPE_UNKNOWN;
+        });
+
+      const bool bIsValid = (it != primitives.end());
+
+      if (!bIsValid)
+      {
+        dsyslog("%s: Removing %s from button map", controllerId.c_str(), feature.Name().c_str());
+        return true;
+      }
+
+      return false;
+    }), features.end());
 }
