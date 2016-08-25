@@ -118,12 +118,12 @@ bool CJoystickInterfaceUdev::ScanForJoysticks(JoystickVector& joysticks)
 const ButtonMap& CJoystickInterfaceUdev::GetButtonMap()
 {
   auto& dflt = m_buttonMap["game.controller.default"];
-  dflt[CJoystickUdev::MOTOR_STRONG].SetPrimitive(ADDON::DriverPrimitive::CreateMotor(CJoystickUdev::MOTOR_STRONG));
-  dflt[CJoystickUdev::MOTOR_WEAK].SetPrimitive(ADDON::DriverPrimitive::CreateMotor(CJoystickUdev::MOTOR_WEAK));
+  dflt[CJoystickUdev::MOTOR_STRONG].SetPrimitive(JOYSTICK_MOTOR_PRIMITIVE, ADDON::DriverPrimitive::CreateMotor(CJoystickUdev::MOTOR_STRONG));
+  dflt[CJoystickUdev::MOTOR_WEAK].SetPrimitive(JOYSTICK_MOTOR_PRIMITIVE, ADDON::DriverPrimitive::CreateMotor(CJoystickUdev::MOTOR_WEAK));
 
   auto& ps = m_buttonMap["game.controller.ps"];
-  ps[CJoystickUdev::MOTOR_STRONG].SetPrimitive(ADDON::DriverPrimitive::CreateMotor(CJoystickUdev::MOTOR_STRONG));
-  ps[CJoystickUdev::MOTOR_WEAK].SetPrimitive(ADDON::DriverPrimitive::CreateMotor(CJoystickUdev::MOTOR_WEAK));
+  ps[CJoystickUdev::MOTOR_STRONG].SetPrimitive(JOYSTICK_MOTOR_PRIMITIVE, ADDON::DriverPrimitive::CreateMotor(CJoystickUdev::MOTOR_STRONG));
+  ps[CJoystickUdev::MOTOR_WEAK].SetPrimitive(JOYSTICK_MOTOR_PRIMITIVE, ADDON::DriverPrimitive::CreateMotor(CJoystickUdev::MOTOR_WEAK));
 
   return m_buttonMap;
 }

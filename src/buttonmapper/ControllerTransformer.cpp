@@ -74,25 +74,26 @@ bool CControllerTransformer::AddControllerMap(const std::string& controllerFrom,
       {
         if (fromFeature.Type() == feature.Type())
         {
+          return fromFeature.Primitives() == feature.Primitives();
           switch (feature.Type())
           {
           case JOYSTICK_FEATURE_TYPE_SCALAR:
           case JOYSTICK_FEATURE_TYPE_MOTOR:
           {
-            return fromFeature.Primitive() == feature.Primitive();
+            return fromFeature.Primitive(JOYSTICK_SCALAR_PRIMITIVE) == feature.Primitive(JOYSTICK_SCALAR_PRIMITIVE);
           }
           case JOYSTICK_FEATURE_TYPE_ANALOG_STICK:
           {
-            return fromFeature.Up()    == feature.Up() &&
-                   fromFeature.Down()  == feature.Down() &&
-                   fromFeature.Right() == feature.Right() &&
-                   fromFeature.Left()  == feature.Left();
+            return fromFeature.Primitive(JOYSTICK_ANALOG_STICK_UP)    == feature.Primitive(JOYSTICK_ANALOG_STICK_UP) &&
+                   fromFeature.Primitive(JOYSTICK_ANALOG_STICK_DOWN)  == feature.Primitive(JOYSTICK_ANALOG_STICK_DOWN) &&
+                   fromFeature.Primitive(JOYSTICK_ANALOG_STICK_RIGHT) == feature.Primitive(JOYSTICK_ANALOG_STICK_RIGHT) &&
+                   fromFeature.Primitive(JOYSTICK_ANALOG_STICK_LEFT)  == feature.Primitive(JOYSTICK_ANALOG_STICK_LEFT);
           }
           case JOYSTICK_FEATURE_TYPE_ACCELEROMETER:
           {
-            return fromFeature.PositiveX() == feature.PositiveX() &&
-                   fromFeature.PositiveY() == feature.PositiveY() &&
-                   fromFeature.PositiveZ() == feature.PositiveZ();
+            return fromFeature.Primitive(JOYSTICK_ACCELEROMETER_POSITIVE_X) == feature.Primitive(JOYSTICK_ACCELEROMETER_POSITIVE_X) &&
+                   fromFeature.Primitive(JOYSTICK_ACCELEROMETER_POSITIVE_Y) == feature.Primitive(JOYSTICK_ACCELEROMETER_POSITIVE_Y) &&
+                   fromFeature.Primitive(JOYSTICK_ACCELEROMETER_POSITIVE_Z) == feature.Primitive(JOYSTICK_ACCELEROMETER_POSITIVE_Z);
           }
           default:
             break;
