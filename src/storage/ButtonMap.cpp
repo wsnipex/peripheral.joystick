@@ -85,12 +85,17 @@ bool CButtonMap::MapFeatures(const std::string& controllerId, const FeatureVecto
       {
         return lhs.Name() < rhs.Name();
       });
+  }
 
-    if (Save())
-    {
-      m_timestamp = P8PLATFORM::GetTimeMs();
-      return true;
-    }
+  return false;
+}
+
+bool CButtonMap::SaveButtonMap()
+{
+  if (Save())
+  {
+    m_timestamp = P8PLATFORM::GetTimeMs();
+    return true;
   }
 
   return false;
@@ -103,12 +108,7 @@ bool CButtonMap::ResetButtonMap(const std::string& controllerId)
   if (!features.empty())
   {
     features.clear();
-
-    if (Save())
-    {
-      m_timestamp = P8PLATFORM::GetTimeMs();
-      return true;
-    }
+    return SaveButtonMap();
   }
 
   return false;

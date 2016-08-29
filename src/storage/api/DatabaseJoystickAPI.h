@@ -34,5 +34,6 @@ namespace JOYSTICK
     virtual const ButtonMap& GetButtonMap(const ADDON::Joystick& driverInfo) override;
     virtual bool MapFeatures(const ADDON::Joystick& driverInfo, const std::string& controllerId, const FeatureVector& features) override;
     virtual bool ResetButtonMap(const ADDON::Joystick& driverInfo, const std::string& controllerId) override;
+    virtual bool SaveButtonMap(const ADDON::Joystick& driverInfo) override;
   };
 }

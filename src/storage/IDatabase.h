@@ -61,6 +61,11 @@ namespace JOYSTICK
                              const FeatureVector& features) = 0;
 
     /*!
+     * \copydoc CStorageManager::SaveButtonMap()
+     */
+    virtual bool SaveButtonMap(const ADDON::Joystick& driverInfo) = 0;
+
+    /*!
      * \copydoc CStorageManager::ResetButtonMap()
      */
     virtual bool ResetButtonMap(const ADDON::Joystick& driverInfo,

@@ -279,6 +279,17 @@ PERIPHERAL_ERROR MapFeatures(const JOYSTICK_INFO* joystick, const char* controll
   return bSuccess ? PERIPHERAL_NO_ERROR : PERIPHERAL_ERROR_FAILED;
 }
 
+void SaveButtonMap(const JOYSTICK_INFO* joystick)
+{
+  if (joystick == nullptr)
+    return;
+
+  ADDON::Joystick addonJoystick(*joystick);
+
+  if (CStorageManager::Get().SaveButtonMap(addonJoystick));
+    PERIPHERAL->RefreshButtonMaps(addonJoystick.Name());
+}
+
 void ResetButtonMap(const JOYSTICK_INFO* joystick, const char* controller_id)
 {
   if (!joystick || !controller_id)

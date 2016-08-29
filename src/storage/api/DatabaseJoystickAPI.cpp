@@ -38,3 +38,8 @@ bool CDatabaseJoystickAPI::ResetButtonMap(const ADDON::Joystick& driverInfo, con
 {
   return false;
 }
+
+bool CDatabaseJoystickAPI::SaveButtonMap(const ADDON::Joystick& driverInfo)
+{
+  return false;
+}

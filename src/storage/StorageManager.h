@@ -93,6 +93,15 @@ namespace JOYSTICK
                      const FeatureVector& features);
 
     /*!
+     * \brief Save the button map for the specified device
+     *
+     * \param deviceName The name of the device to reset
+     *
+     * \return true if the underlying storage was modified, false otherwise
+     */
+    bool SaveButtonMap(const ADDON::Joystick& joystick);
+
+    /*!
      * \brief Reset the button map for the specified device and controller profile
      *
      * \param deviceName The name of the device to reset

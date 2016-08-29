@@ -134,6 +134,16 @@ bool CStorageManager::MapFeatures(const ADDON::Joystick& joystick,
   return bModified;
 }
 
+bool CStorageManager::SaveButtonMap(const ADDON::Joystick& joystick)
+{
+  bool bModified = false;
+
+  for (DatabaseVector::const_iterator it = m_databases.begin(); it != m_databases.end(); ++it)
+    bModified |= (*it)->SaveButtonMap(joystick);
+
+  return bModified;
+}
+
 bool CStorageManager::ResetButtonMap(const ADDON::Joystick& joystick, const std::string& strControllerId)
 {
   bool bModified = false;
