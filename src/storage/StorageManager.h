@@ -86,7 +86,7 @@ namespace JOYSTICK
      * \param controller_id The game controller profile being updated
      * \param features      The array of features and their driver primitives
      *
-     * \return true if features were updated in a storage backend
+     * \return true if features were mapped in a storage backend
      */
     bool MapFeatures(const ADDON::Joystick& joystick,
                      const std::string& strDeviceId,

@@ -154,7 +154,10 @@ bool CJustABunchOfFiles::MapFeatures(const ADDON::Joystick& driverInfo,
   }
 
   if (resource)
-    return resource->MapFeatures(controllerId, features);
+  {
+    resource->MapFeatures(controllerId, features);
+    return true;
+  }
 
   return false;
 }

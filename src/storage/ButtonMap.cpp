@@ -57,37 +57,29 @@ const ButtonMap& CButtonMap::GetButtonMap()
   return m_buttonMap;
 }
 
-bool CButtonMap::MapFeatures(const std::string& controllerId, const FeatureVector& features)
+void CButtonMap::MapFeatures(const std::string& controllerId, const FeatureVector& features)
 {
   FeatureVector& myFeatures = m_buttonMap[controllerId];
 
-  // TODO: Optimize case when features are unchanged
-  bool bChanged = true; // TODO
-
-  if (bChanged)
+  // Remove features with the same name
+  for (auto& newFeature : features)
   {
-    // Remove features with the same name
-    for (auto& newFeature : features)
-    {
-      myFeatures.erase(std::remove_if(myFeatures.begin(), myFeatures.end(),
-        [newFeature](const ADDON::JoystickFeature& feature)
-        {
-          return feature.Name() == newFeature.Name();
-        }), myFeatures.end());
-    }
-
-    myFeatures.insert(myFeatures.begin(), features.begin(), features.end());
-
-    Sanitize(controllerId, myFeatures);
-
-    std::sort(myFeatures.begin(), myFeatures.end(),
-      [](const ADDON::JoystickFeature& lhs, const ADDON::JoystickFeature& rhs)
+    myFeatures.erase(std::remove_if(myFeatures.begin(), myFeatures.end(),
+      [newFeature](const ADDON::JoystickFeature& feature)
       {
-        return lhs.Name() < rhs.Name();
-      });
+        return feature.Name() == newFeature.Name();
+      }), myFeatures.end());
   }
 
-  return false;
+  myFeatures.insert(myFeatures.begin(), features.begin(), features.end());
+
+  Sanitize(controllerId, myFeatures);
+
+  std::sort(myFeatures.begin(), myFeatures.end(),
+    [](const ADDON::JoystickFeature& lhs, const ADDON::JoystickFeature& rhs)
+    {
+      return lhs.Name() < rhs.Name();
+    });
 }
 
 bool CButtonMap::SaveButtonMap()

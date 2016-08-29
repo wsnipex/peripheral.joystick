@@ -126,12 +126,12 @@ bool CStorageManager::MapFeatures(const ADDON::Joystick& joystick,
                                   const std::string& strControllerId,
                                   const FeatureVector& features)
 {
-  bool bModified = false;
+  bool bSuccess = false;
 
   for (DatabaseVector::const_iterator it = m_databases.begin(); it != m_databases.end(); ++it)
-    bModified |= (*it)->MapFeatures(joystick, strControllerId, features);
+    bSuccess |= (*it)->MapFeatures(joystick, strControllerId, features);
 
-  return bModified;
+  return bSuccess;
 }
 
 bool CStorageManager::SaveButtonMap(const ADDON::Joystick& joystick)

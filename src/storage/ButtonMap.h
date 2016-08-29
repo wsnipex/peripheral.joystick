@@ -44,7 +44,7 @@ namespace JOYSTICK
 
     void GetControllerMap(ControllerMap& controllerMap);
 
-    bool MapFeatures(const std::string& controllerId, const FeatureVector& features);
+    void MapFeatures(const std::string& controllerId, const FeatureVector& features);
 
     bool SaveButtonMap();
 
